@@ -11,8 +11,7 @@
             --sky-blue: #4b9cd3;
             --gold-accent: #ffd700;
             --soft-white: #f5f7fa;
-            --gold-glow: rgba(255, 215, 0, 0.6);
-            --moon-glow: rgba(255, 255, 200, 0.8);
+            --gold-glow: rgba(255, 215, 0, 0.3);
         }
         
         body {
@@ -57,33 +56,7 @@
             50% { opacity: 1; }
         }
         
-        /* === MOON-LIKE GLOWING HEART === */
-        .giant-heart {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 300px;
-            color: var(--moon-glow);
-            z-index: 0;
-            pointer-events: none;
-            text-shadow: 0 0 80px var(--gold-accent);
-            filter: drop-shadow(0 0 20px var(--gold-accent));
-            animation: pulse 4s infinite ease-in-out;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { 
-                opacity: 0.9;
-                text-shadow: 0 0 80px var(--gold-accent);
-            }
-            50% { 
-                opacity: 1;
-                text-shadow: 0 0 120px var(--gold-accent);
-            }
-        }
-        
-        /* === 3D GALLERY === */
+        /* === 3D GALLERY WITH GIANT HEART === */
         .gallery-container {
             perspective: 1000px;
             width: 300px;
@@ -91,6 +64,25 @@
             margin: 50px auto;
             position: relative;
             z-index: 1;
+        }
+        
+        .giant-heart {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 300px;
+            color: var(--gold-accent);
+            opacity: 0.1;
+            z-index: 0;
+            pointer-events: none;
+            text-shadow: 0 0 30px var(--gold-glow);
+            animation: pulse 6s infinite ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.1; }
+            50% { opacity: 0.15; }
         }
         
         .gallery {
@@ -105,80 +97,39 @@
             animation-play-state: paused;
         }
         
-        .gallery-item {
+        .gallery img {
             position: absolute;
             width: 300px;
             height: 200px;
-            transform-style: preserve-3d;
-            transition: all 0.5s;
-        }
-        
-        .gallery-item .image-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-        
-        .gallery-item img {
-            width: 100%;
-            height: 100%;
             object-fit: cover;
             border: 2px solid rgba(255, 255, 255, 0.5);
             border-radius: 5px;
             box-shadow: 0 0 15px rgba(75, 156, 211, 0.6);
+            transition: all 0.5s;
             filter: brightness(0.95);
-            transition: all 0.3s;
         }
         
-        .gallery-item .image-description {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(10, 31, 68, 0.9);
-            color: var(--soft-white);
-            padding: 15px;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 14px;
-            transform: translateY(100%);
-            opacity: 0;
-            transition: all 0.3s ease;
-            border-radius: 0 0 5px 5px;
-            text-align: center;
-            backdrop-filter: blur(3px);
-        }
-        
-        .gallery-item:hover {
+        .gallery img:hover {
             transform: scale(1.1);
+            box-shadow: 0 0 25px var(--sky-blue);
             z-index: 10;
-        }
-        
-        .gallery-item:hover img {
-            box-shadow: 0 0 25px var(--sky-blue),
-                        0 0 15px var(--gold-accent);
-            filter: brightness(1.1);
+            filter: brightness(1.05);
             border-color: var(--gold-accent);
         }
         
-        .gallery-item:hover .image-description {
-            transform: translateY(0);
-            opacity: 1;
-        }
-        
-        /* Position each image in the 3D space */
-        .gallery-item:nth-child(1) {
+        .gallery img:nth-child(1) {
             transform: rotateY(0deg) translateZ(400px);
         }
         
-        .gallery-item:nth-child(2) {
+        .gallery img:nth-child(2) {
             transform: rotateY(90deg) translateZ(400px);
         }
         
-        .gallery-item:nth-child(3) {
+        .gallery img:nth-child(3) {
             transform: rotateY(180deg) translateZ(400px);
         }
         
-        .gallery-item:nth-child(4) {
+        .gallery img:nth-child(4) {
             transform: rotateY(270deg) translateZ(400px);
         }
         
@@ -201,11 +152,11 @@
             padding: 20px;
             max-width: 80%;
             font-family: 'Montserrat', sans-serif;
-            background: rgba(10, 31, 68, 0.7);
+            background: rgba(10, 31, 68, 0.5);
             border-radius: 10px;
-            border: 1px solid var(--gold-accent);
+            border: 1px solid rgba(75, 156, 211, 0.3);
             text-shadow: 0 0 10px var(--gold-glow);
-            box-shadow: 0 0 20px var(--gold-glow);
+            box-shadow: 0 0 15px var(--gold-glow);
         }
         
         .floating-heart {
@@ -216,8 +167,8 @@
             bottom: -40px;
             left: 50%;
             transform: translateX(-50%);
-            text-shadow: 0 0 15px var(--gold-glow);
-            filter: drop-shadow(0 0 8px var(--gold-accent));
+            text-shadow: 0 0 10px var(--gold-glow);
+            filter: drop-shadow(0 0 5px var(--gold-accent));
         }
         
         @keyframes float {
@@ -231,7 +182,7 @@
         
         h1 {
             color: var(--soft-white);
-            text-shadow: 0 0 15px var(--gold-glow);
+            text-shadow: 0 0 10px var(--gold-glow);
             margin-bottom: 30px;
             font-size: 2.5rem;
             font-weight: 700;
@@ -243,45 +194,16 @@
     <!-- Twinkling Stars Background -->
     <div id="stars-container"></div>
     
-    <!-- Moon-like Glowing Heart -->
-    <div class="giant-heart">❤</div>
-    
     <h1>For My Beautiful Love</h1>
+    
+    <div class="giant-heart">❤</div>
     
     <div class="gallery-container">
         <div class="gallery">
-            <div class="gallery-item">
-                <div class="image-container">
-                    <img src="pics/pic1.jpeg" alt="Our Memory 1">
-                    <div class="image-description">
-                        Your hugs and kisses - They feel like home. A true sense of being at peace.
-                    </div>
-                </div>
-            </div>
-            <div class="gallery-item">
-                <div class="image-container">
-                    <img src="pics/pic2.jpeg" alt="Our Memory 2">
-                    <div class="image-description">
-                        First date- Never a dull moment with you. Knwe I found my treasure
-                    </div>
-                </div>
-            </div>
-            <div class="gallery-item">
-                <div class="image-container">
-                    <img src="pics/pic3.jpeg" alt="Our Memory 3">
-                    <div class="image-description">
-                        Youre gorgeous - Eyes that always have me mezmerized.
-                    </div>
-                </div>
-            </div>
-            <div class="gallery-item">
-                <div class="image-container">
-                    <img src="pics/pic4.jpeg" alt="Our Memory 4">
-                    <div class="image-description">
-                        The motivation - I wake up wanting to be better each day because life has an even greater meaning now.
-                    </div>
-                </div>
-            </div>
+            <img src="pics/pic1.jpeg" alt="Our Memory 1">
+            <img src="pics/pic2.jpeg" alt="Our Memory 2">
+            <img src="pics/pic3.jpeg" alt="Our Memory 3">
+            <img src="pics/pic4.jpeg" alt="Our Memory 4">
         </div>
     </div>
 
