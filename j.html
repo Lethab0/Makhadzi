@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flower Constellation of Love</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Arial', sans-serif;
+            background: #0a0e2a;
+            color: white;
+        }
+        
+        #container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            z-index: 100;
+            pointer-events: none;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            text-shadow: 0 0 15px rgba(100, 200, 255, 0.7);
+            margin-bottom: 5px;
+            color: #7ad0ff;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+        
+        .petal-title {
+            font-size: 1.3em;
+            color: #a3d8ff;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(100, 180, 255, 0.5);
+            font-style: italic;
+        }
+        
+        #message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10, 20, 50, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            border: 1px solid #4d9eff;
+            max-width: 500px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.5s;
+            pointer-events: none;
+            z-index: 200;
+            box-shadow: 0 0 40px rgba(100, 180, 255, 0.3);
+            backdrop-filter: blur(5px);
+        }
+        
+        #message.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        #message h2 {
+            color: #7ad0ff;
+            margin-top: 0;
+            font-weight: 300;
+        }
+        
+        #message p {
+            line-height: 1.6;
+        }
+        
+        #closeBtn {
+            background: linear-gradient(to right, #4d9eff, #7ad0ff);
+            border: none;
+            color: #0a0e2a;
+            padding: 8px 25px;
+            border-radius: 20px;
+            margin-top: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        
+        #closeBtn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(100, 180, 255, 0.7);
+        }
+        
+        #musicToggle {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(100, 180, 255, 0.2);
+            border: 1px solid #4d9eff;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        #musicToggle:hover {
+            background: rgba(100, 180, 255, 0.4);
+        }
+        
+        #progress {
+            position: absolute;
+            bottom: 70px;
+            right: 20px;
+            color: #a3d8ff;
+            font-size: 0.9em;
+            background: rgba(10, 20, 50, 0.5);
+            padding: 5px 15px;
+            border-radius: 20px;
+            border: 1px solid #4d9eff;
+        }
+        
+        .flower-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            background: #ffd700;
+            border-radius: 50%;
+            box-shadow: 0 0 20px #ffd700, 0 0 40px #ffd700;
+            z-index: 50;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .petal-title {
+                font-size: 1.1em;
+            }
+            
+            #message {
+                width: 80%;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    <div class="flower-center"></div>
+    
+    <div id="ui">
+        <h1>Flower Constellation of Love</h1>
+        <div class="petal-title" id="petalName">Each petal holds a reason you bloom in my heart</div>
+    </div>
+    
+    <div id="message">
+        <h2 id="messageTitle">Petal of Her Smile</h2>
+        <p id="messageContent">The way your eyes light up when you smile...</p>
+        <button id="closeBtn">Continue Exploring</button>
+    </div>
+    
+    <div id="progress">0/100 Discovered</div>
+    
+    <button id="musicToggle">♪</button>
+    
+    <audio id="bgMusic" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        // Your 100 reasons organized by flower petals
+        const petals = {
+            "Smile": [
+                "The way your eyes light up when you smile",
+                "How your smile makes my worries disappear",
+                "That little dimple that appears when you grin",
+                "Your contagious laughter that follows your smile",
+                "The way you smile at me when you first wake up",
+                "How you smile with your whole face",
+                "Your shy smile when you're being complimented",
+                "The mischievous smile when you're up to something",
+                "Your proud smile when you accomplish something",
+                "Your comforting smile when I need it most"
+            ],
+            "Eyes": [
+                "How I get lost in your beautiful eyes",
+                "The way your eyes sparkle when you're excited",
+                "How your eyes show compassion for others",
+                "That special look you give only to me",
+                "The way your eyelashes catch the light",
+                "How your eyes change color in different light",
+                "The way you look at me from across the room",
+                "Your expressive eyebrows that tell stories",
+                "How your eyes light up when you talk about passions",
+                "The way you wink at me playfully"
+            ],
+            "Kindness": [
+                "How you always think of others first",
+                "Your patience with people who need help",
+                "The way you care for animals and nature",
+                "Your generosity that knows no bounds",
+                "How you make everyone feel important",
+                "The thoughtful little things you do daily",
+                "How you give without expecting anything back",
+                "Your ability to forgive and understand",
+                "The way you stand up for what's right",
+                "Your gentle way of correcting others"
+            ],
+            "Laughter": [
+                "Your hilarious impressions that crack me up",
+                "The way you snort when you laugh too hard",
+                "How you find joy in the simplest things",
+                "Your ability to laugh at yourself",
+                "That time we laughed until we cried at...",
+                "Your unique laugh that I'd recognize anywhere",
+                "How you laugh at my dumb jokes anyway",
+                "The way you try to suppress laughter in serious moments",
+                "Your childlike giggle when you're truly happy",
+                "How you make me laugh like no one else can"
+            ],
+            "Touch": [
+                "The way your hand fits perfectly in mine",
+                "Your comforting hugs after a long day",
+                "How you play with my hair absentmindedly",
+                "Your gentle touches when you pass by",
+                "The way you hold me when I'm sad",
+                "Your warm hands on cold winter nights",
+                "How you reach for me in your sleep",
+                "Your back rubs after a stressful day",
+                "The way you kiss my forehead",
+                "How you instinctively grab my arm when startled"
+            ],
+            "Mind": [
+                "Your brilliant way of solving problems",
+                "How you see beauty where others don't",
+                "Your curiosity about the world",
+                "The unique way you connect ideas",
+                "Your wisdom beyond your years",
+                "How you challenge me to think differently",
+                "Your incredible memory for details",
+                "The way you analyze situations",
+                "Your creative solutions to challenges",
+                "How you're always learning new things"
+            ],
+            "Heart": [
+                "How deeply you care about people",
+                "Your capacity to love unconditionally",
+                "The way you wear your heart on your sleeve",
+                "Your resilience through difficult times",
+                "How you love without expecting anything back",
+                "Your ability to forgive and understand",
+                "The way you celebrate others' successes",
+                "Your empathy for those who are hurting",
+                "How you stand up for those who can't",
+                "Your courage to love despite past hurts"
+            ],
+            "Voice": [
+                "The soothing sound of your voice",
+                "How you say my name in that special way",
+                "Your excited tone when talking about passions",
+                "The comforting words you choose",
+                "Your morning voice before coffee",
+                "How you whisper secrets close to my ear",
+                "Your singing voice in the shower",
+                "The way you comfort with just your tone",
+                "Your laugh when you're truly surprised",
+                "How you say 'I love you' differently each time"
+            ],
+            "Memories": [
+                "Our first date when we...",
+                "That vacation where we...",
+                "The night we stayed up talking until sunrise",
+                "When we got caught in the rain and danced",
+                "All our inside jokes that no one else gets",
+                "That time we tried cooking together and...",
+                "Our spontaneous road trip adventures",
+                "The quiet mornings we've shared",
+                "Every anniversary we've celebrated",
+                "How we've grown together over time"
+            ],
+            "Future": [
+                "How excited I am for our tomorrows",
+                "All the dreams we'll make come true",
+                "The adventures we haven't had yet",
+                "Growing old together with you",
+                "The family we might build someday",
+                "All the places we'll visit together",
+                "The challenges we'll overcome side by side",
+                "The love that will keep growing",
+                "The memories we haven't made yet",
+                "Simply knowing you'll be there"
+            ]
+        };
+        
+        // Flatten all reasons into one array with petal info
+        let allReasons = [];
+        let discoveredCount = 0;
+        Object.keys(petals).forEach(petal => {
+            petals[petal].forEach((reason, index) => {
+                allReasons.push({
+                    text: reason,
+                    petal: petal,
+                    discovered: false
+                });
+            });
+        });
+        
+        // Three.js setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ 
+            antialias: true,
+            alpha: true
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('container').appendChild(renderer.domElement);
+        
+        // Controls - more delicate for flower
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.minDistance = 30;
+        controls.maxDistance = 100;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 0.3;
+        controls.enablePan = false;
+        
+        // Position camera
+        camera.position.z = 50;
+        
+        // Create flower structure
+        const flowerGroup = new THREE.Group();
+        scene.add(flowerGroup);
+        
+        // Create petals (each petal type gets a section)
+        const petalGroups = {};
+        const petalCount = Object.keys(petals).length;
+        const goldenRatio = (1 + Math.sqrt(5)) / 2;
+        const angleIncrement = (2 * Math.PI) / goldenRatio;
+        
+        Object.keys(petals).forEach((petal, i) => {
+            const group = new THREE.Group();
+            
+            // Position in flower pattern using golden angle
+            const radius = 15;
+            const angle = i * angleIncrement;
+            const x = Math.cos(angle) * radius;
+            const z = Math.sin(angle) * radius;
+            
+            // Slightly curve the petals upward
+            group.position.set(x, -5 + Math.abs(x)/3, z);
+            
+            // Rotate to face center
+            group.lookAt(0, 0, 0);
+            
+            flowerGroup.add(group);
+            petalGroups[petal] = group;
+        });
+        
+        // Create stars (reasons)
+        const stars = [];
+        const starGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+        const starMaterial = new THREE.MeshBasicMaterial({ color: 0x7ad0ff });
+        
+        allReasons.forEach((reason, i) => {
+            const petalGroup = petalGroups[reason.petal];
+            const star = new THREE.Mesh(starGeometry, starMaterial.clone());
+            
+            // Position in petal with organic variation
+            const petalAngle = Math.random() * Math.PI * 2;
+            const petalDistance = 2 + Math.random() * 8;
+            const petalHeight = (Math.random() - 0.5) * 3;
+            
+            star.position.x = Math.cos(petalAngle) * petalDistance;
+            star.position.y = petalHeight;
+            star.position.z = Math.sin(petalAngle) * petalDistance;
+            
+            // Add slight curve to petal shape
+            star.position.y -= star.position.x * star.position.x * 0.02;
+            
+            star.userData = { reason: reason, index: i };
+            petalGroup.add(star);
+            stars.push(star);
+            
+            // Add glow effect
+            const glowGeometry = new THREE.SphereGeometry(0.5, 16, 16);
+            const glowMaterial = new THREE.MeshBasicMaterial({ 
+                color: 0x4d9eff,
+                transparent: true,
+                opacity: 0.3
+            });
+            const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+            glow.visible = false;
+            star.add(glow);
+            star.userData.glow = glow;
+            
+            // Twinkle animation
+            star.userData.baseY = star.position.y;
+            star.userData.twinkleSpeed = 0.5 + Math.random();
+        });
+        
+        // Add connecting lines between stars in each petal
+        Object.values(petalGroups).forEach(group => {
+            const starsInPetal = [];
+            group.traverse(child => {
+                if (child instanceof THREE.Mesh && child !== group) {
+                    starsInPetal.push(child);
+                }
+            });
+            
+            // Create lines between stars
+            for (let i = 0; i < starsInPetal.length; i++) {
+                // Connect to nearest 2-3 other stars
+                const connections = Math.min(3, starsInPetal.length - 1);
+                for (let j = i + 1; j < i + 1 + connections; j++) {
+                    const k = j % starsInPetal.length;
+                    const geometry = new THREE.BufferGeometry().setFromPoints([
+                        starsInPetal[i].position,
+                        starsInPetal[k].position
+                    ]);
+                    const material = new THREE.LineBasicMaterial({ 
+                        color: 0x3a6ea5,
+                        transparent: true,
+                        opacity: 0.3
+                    });
+                    const line = new THREE.Line(geometry, material);
+                    group.add(line);
+                }
+            }
+        });
+        
+        // Add ambient light
+        const ambientLight = new THREE.AmbientLight(0x1a3e72);
+        scene.add(ambientLight);
+        
+        // Add directional light (moonlight)
+        const directionalLight = new THREE.DirectionalLight(0xa3d8ff, 0.5);
+        directionalLight.position.set(1, 1, 1);
+        scene.add(directionalLight);
+        
+        // Add subtle blue point light in center (stamen)
+        const centerLight = new THREE.PointLight(0x4d9eff, 1, 30);
+        centerLight.position.set(0, 0, 0);
+        scene.add(centerLight);
+        
+        // Add stardust particles (pollen effect)
+        const particleCount = 800;
+        const particles = new THREE.BufferGeometry();
+        const particlePositions = new Float32Array(particleCount * 3);
+        const particleColors = new Float32Array(particleCount * 3);
+        
+        for (let i = 0; i < particleCount; i++) {
+            // Position in a sphere around the flower
+            const radius = 20 + Math.random() * 10;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.random() * Math.PI;
+            
+            particlePositions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+            particlePositions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+            particlePositions[i * 3 + 2] = radius * Math.cos(phi);
+            
+            // Blueish colors
+            particleColors[i * 3] = 0.4 + Math.random() * 0.6; // R
+            particleColors[i * 3 + 1] = 0.6 + Math.random() * 0.4; // G
+            particleColors[i * 3 + 2] = 0.8 + Math.random() * 0.2; // B
+        }
+        
+        particles.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+        particles.setAttribute('color', new THREE.BufferAttribute(particleColors, 3));
+        
+        const particleMaterial = new THREE.PointsMaterial({
+            size: 0.2,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending
+        });
+        
+        const particleSystem = new THREE.Points(particles, particleMaterial);
+        scene.add(particleSystem);
+        
+        // Raycaster for interaction
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        
+        // UI elements
+        const messageEl = document.getElementById('message');
+        const messageTitle = document.getElementById('messageTitle');
+        const messageContent = document.getElementById('messageContent');
+        const closeBtn = document.getElementById('closeBtn');
+        const petalNameEl = document.getElementById('petalName');
+        const progressEl = document.getElementById('progress');
+        const musicToggle = document.getElementById('musicToggle');
+        const bgMusic = document.getElementById('bgMusic');
+        
+        // Music toggle
+        let musicPlaying = false;
+        musicToggle.addEventListener('click', () => {
+            musicPlaying = !musicPlaying;
+            if (musicPlaying) {
+                bgMusic.play();
+                musicToggle.style.background = 'rgba(100, 180, 255, 0.5)';
+                musicToggle.style.borderColor = '#7ad0ff';
+            } else {
+                bgMusic.pause();
+                musicToggle.style.background = 'rgba(100, 180, 255, 0.2)';
+                musicToggle.style.borderColor = '#4d9eff';
+            }
+        });
+        
+        // Close message
+        closeBtn.addEventListener('click', () => {
+            messageEl.classList.remove('show');
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // Handle clicks
+        window.addEventListener('click', (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(stars);
+            
+            if (intersects.length > 0) {
+                const star = intersects[0].object;
+                const reason = star.userData.reason;
+                
+                // Show message
+                messageTitle.textContent = `Petal of Her ${reason.petal}`;
+                messageContent.textContent = reason.text;
+                messageEl.classList.add('show');
+                
+                // Highlight petal
+                petalNameEl.textContent = `Exploring: ${reason.petal}`;
+                
+                // Mark as discovered if not already
+                if (!reason.discovered) {
+                    reason.discovered = true;
+                    discoveredCount++;
+                    progressEl.textContent = `${discoveredCount}/100 Discovered`;
+                    
+                    // Change star color to gold
+                    star.material.color.setHex(0xFFD700);
+                    star.userData.glow.visible = true;
+                    
+                    // Pulse animation
+                    star.scale.set(1.5, 1.5, 1.5);
+                    setTimeout(() => {
+                        star.scale.set(1, 1, 1);
+                    }, 300);
+                }
+            }
+        });
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Rotate particle system (pollen)
+            particleSystem.rotation.x += 0.0001;
+            particleSystem.rotation.y += 0.0002;
+            
+            // Gentle flower sway
+            flowerGroup.rotation.y += 0.001;
+            flowerGroup.position.y = Math.sin(Date.now() * 0.001) * 0.5;
+            
+            // Twinkle stars
+            stars.forEach(star => {
+                star.position.y = star.userData.baseY + Math.sin(Date.now() * 0.001 * star.userData.twinkleSpeed) * 0.3;
+            });
+            
+            // Update controls
+            controls.update();
+            
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+    </script>
+</body>
+</html>

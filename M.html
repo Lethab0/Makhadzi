@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>For You, My Love</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        display: flex;
+        flex-direction: row;
+        min-height: 100vh;
+        background: #f0f8ff;
+        font-family: 'Georgia', serif;
+        overflow: hidden;
+      }
+
+      #canvas-container {
+        width: 50vw;
+        height: 100vh;
+      }
+
+      #gallery {
+        width: 50vw;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        padding: 2%;
+        box-sizing: border-box;
+        overflow-y: auto;
+        background: rgba(240, 248, 255, 0.7);
+      }
+
+      .gallery-title {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: #0d2b5e;
+        text-align: center;
+      }
+
+      .gallery-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+        padding: 10px;
+      }
+
+      .gallery-item {
+        position: relative;
+        overflow: hidden;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+        aspect-ratio: 1;
+      }
+
+      .gallery-item:hover {
+        transform: scale(1.03);
+      }
+
+      .gallery-item img, .gallery-item video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .signature {
+        font-style: italic;
+        margin-top: 2rem;
+        font-size: 1.3rem;
+        text-align: center;
+      }
+
+      .heart {
+        color: #ff6b6b;
+        font-size: 1.5rem;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          flex-direction: column;
+        }
+
+        #canvas-container,
+        #gallery {
+          width: 100vw;
+          height: 50vh;
+        }
+
+        .gallery-title {
+          font-size: 1.8rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="canvas-container"></div>
+    <div id="gallery">
+      <h1 class="gallery-title">Our Memories</h1>
+      <div class="gallery-container" id="gallery-container">
+        <!-- Gallery items will be inserted here by JavaScript -->
+      </div>
+      <div class="signature">
+        Forever yours,<br />
+        Lethabo <span class="heart">♥</span>
+      </div>
+    </div>
+
+    <script>
+      function setup() {
+        let canvas = createCanvas(window.innerWidth / 2, window.innerHeight);
+        canvas.parent('canvas-container');
+        background(240, 245, 255);
+      }
+
+      function draw() {
+        var freq = frameCount * 0.02;
+        var amp = frameCount / 3;
+        var value = noise(freq) * amp;
+
+        var angle = radians(frameCount);
+        var pos = p5.Vector.fromAngle(angle);
+        pos.mult(value);
+
+        for (var a = 0; a < 360; a += 72) {
+          push();
+          translate(width / 2, height / 2);
+          rotate(radians(a));
+          fill(30, 100, 200, 40);
+          noStroke();
+          ellipse(pos.x, pos.y, 3, 3);
+          stroke(100, 150, 255, 20);
+          strokeWeight(1);
+          line(0, 0, pos.x, pos.y);
+          pop();
+        }
+      }
+
+      function windowResized() {
+        resizeCanvas(window.innerWidth / (window.innerWidth < 768 ? 1 : 2), window.innerHeight / (window.innerWidth < 768 ? 2 : 1));
+        background(240, 245, 255); // Clear canvas on resize
+      }
+
+      // Function to load gallery items from the "pics" folder
+      function loadGallery() {
+        // In a real implementation, you would fetch this list from your server
+        // For demonstration, we'll use a placeholder array
+        const galleryItems = [
+          { type: 'image', filename: 'photo1.png' },
+          { type: 'image', filename: 'photo2.jpg' },
+          { type: 'video', filename: 'video1.mp4' },
+          // Add more items as needed
+        ];
+        
+        const galleryContainer = document.getElementById('gallery-container');
+        
+        // Replace with actual folder path
+        const picsFolder = 'pics/';
+        
+        galleryItems.forEach(item => {
+          const galleryItem = document.createElement('div');
+          galleryItem.className = 'gallery-item';
+          
+          if (item.type === 'image') {
+            const img = document.createElement('img');
+            img.src = picsFolder + item.filename;
+            img.alt = 'Memory';
+            galleryItem.appendChild(img);
+          } else if (item.type === 'video') {
+            const video = document.createElement('video');
+            video.src = picsFolder + item.filename;
+            video.controls = true;
+            video.muted = true;
+            video.loop = true;
+            video.autoplay = true;
+            galleryItem.appendChild(video);
+          }
+          
+          galleryContainer.appendChild(galleryItem);
+        });
+      }
+      
+      // Load the gallery when the page loads
+      window.addEventListener('DOMContentLoaded', loadGallery);
+    </script>
+  </body>
+</html>
